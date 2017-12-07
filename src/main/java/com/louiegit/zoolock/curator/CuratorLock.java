@@ -1,6 +1,7 @@
-package com.louiegit.zoolock;
+package com.louiegit.zoolock.curator;
 
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
+import com.louiegit.zoolock.common.Lock;
+import com.louiegit.zoolock.common.LockInfo;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.RetrySleeper;
 import org.apache.curator.framework.CuratorFramework;
@@ -14,7 +15,7 @@ import java.util.concurrent.TimeUnit;
  * @author tianxiang.luo
  * @version 2017/12/6 15:02
  */
-public class CuratorLock implements ZLock {
+public class CuratorLock implements Lock {
 
     private InterProcessLock processLock;
 
@@ -22,7 +23,7 @@ public class CuratorLock implements ZLock {
 
     private static final Integer RETRY_MAX = Integer.MAX_VALUE;
 
-    private static final CuratorFramework client = CuratorFrameworkFactory.newClient("127.0.0.1:2181", new RetryPolicy() {
+    private static final CuratorFramework client = CuratorFrameworkFactory.newClient(LockInfo.DEFAULT_SOCKET, new RetryPolicy() {
         @Override
         public boolean allowRetry(int retry, long sleepTime, RetrySleeper retrySleeper) {
             if (retry > RETRY_MAX){
@@ -38,7 +39,7 @@ public class CuratorLock implements ZLock {
         }
     });
 
-    public CuratorLock(ZLockInfo zLockInfo) {
+    public CuratorLock(LockInfo zLockInfo) {
         path = zLockInfo.getPath();
         client.start();
         processLock = new InterProcessMutex(client,path);

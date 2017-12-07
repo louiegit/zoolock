@@ -1,10 +1,10 @@
-package com.louiegit.zoolock;
+package com.louiegit.zoolock.common;
 
 /**
  * @author tianxiang.luo
  * @version 2017/12/6 14:54
  */
-public interface ZLock {
+public interface Lock {
 
 
     /**
