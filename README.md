@@ -10,7 +10,7 @@ distributed lock based on curator framework
         cLock.unlock();
         Assert.assertFalse(cLock.isLock());
 ```
-
+distributed lock based on zkClient
 #### ZooLock Usage
 ```java
         LockInfo lockInfo = new LockInfo("louie");
