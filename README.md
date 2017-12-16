@@ -1,12 +1,23 @@
-# ZooLock-prod
+# Lock 
 distributed lock based on curator framework 
 
-#### Usage
+#### CuratorLock Usage
 ```java
-  ZLockInfo info = new ZLockInfo("louie",ZLockType.PRIVATE);
-  ZLock zLock = new CuratorLock(info);
-  zLock.lock();
-  Assert.assertTrue(zLock.isLock());
-  zLock.unlock();
-  Assert.assertFalse(zLock.isLock());
+        LockInfo info = new LockInfo("louie");
+        Lock cLock = new CuratorLock(info);
+        cLock.lock();
+        Assert.assertTrue(cLock.isLock());
+        cLock.unlock();
+        Assert.assertFalse(cLock.isLock());
+```
+distributed lock based on zkClient
+#### ZooLock Usage
+```java
+        LockInfo lockInfo = new LockInfo("louie");
+        Lock zLock = new ZooLock(lockInfo);
+        zLock.lock();
+        zLock.lock();
+        Assert.assertTrue(zLock.isLock());
+        zLock.unlock();
+        Assert.assertFalse(zLock.isLock());
 ```
