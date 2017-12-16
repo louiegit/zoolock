@@ -1,7 +1,7 @@
 package com.louiegit.zoolock.curator;
 
-import com.louiegit.zoolock.common.Lock;
-import com.louiegit.zoolock.common.LockInfo;
+import com.louiegit.zoolock.lock.Lock;
+import com.louiegit.zoolock.lock.LockInfo;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.RetrySleeper;
 import org.apache.curator.framework.CuratorFramework;

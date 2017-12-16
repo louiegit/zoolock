@@ -1,7 +1,7 @@
 package com.louiegit.zoolock.zookeeper;
 
-import com.louiegit.zoolock.common.Lock;
-import com.louiegit.zoolock.common.LockInfo;
+import com.louiegit.zoolock.lock.Lock;
+import com.louiegit.zoolock.lock.LockInfo;
 import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.Stat;
 
@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author tianxiang.luo

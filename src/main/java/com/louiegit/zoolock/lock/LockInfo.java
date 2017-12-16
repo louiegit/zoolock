@@ -1,4 +1,4 @@
-package com.louiegit.zoolock.common;
+package com.louiegit.zoolock.lock;
 
 /**
  * @author tianxiang.luo

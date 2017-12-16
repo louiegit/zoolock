@@ -1,7 +1,7 @@
 package com.louiegit.zoolock;
 
-import com.louiegit.zoolock.common.Lock;
-import com.louiegit.zoolock.common.LockInfo;
+import com.louiegit.zoolock.lock.Lock;
+import com.louiegit.zoolock.lock.LockInfo;
 import com.louiegit.zoolock.curator.CuratorLock;
 import org.junit.Assert;
 import org.junit.Test;
