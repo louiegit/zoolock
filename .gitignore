@@ -1,0 +1,13 @@
+*.settings
+*.classpath
+*.project
+*.class
+target
+.sass-cache
+*.log
+bin/**
+.idea/**
+*.iml
+submode
+.svn
+*.txt

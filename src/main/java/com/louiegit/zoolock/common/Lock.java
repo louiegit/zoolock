@@ -8,22 +8,27 @@ public interface Lock {
 
 
     /**
-     * 上锁
+     * 获取zk锁
+     * @return
      */
     boolean lock();
 
     /**
-     * 上锁
+     * 超时锁
+     * @param timeout 超时时间单位milliseconds
+     * @return
      */
     boolean lock(long timeout);
 
     /**
-     * 解锁
+     * 释放锁
+     * @return
      */
     boolean unlock();
 
     /**
-     * 判断锁
+     * 判断是否获取锁
+     * @return
      */
     boolean isLock();
 

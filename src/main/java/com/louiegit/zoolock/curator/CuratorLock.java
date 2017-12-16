@@ -26,6 +26,7 @@ public class CuratorLock implements Lock {
     private static final CuratorFramework client = CuratorFrameworkFactory.newClient(LockInfo.DEFAULT_SOCKET, new RetryPolicy() {
         @Override
         public boolean allowRetry(int retry, long sleepTime, RetrySleeper retrySleeper) {
+            //重试次数超过Integer.MAX_VALUE便放弃重试
             if (retry > RETRY_MAX){
                 return false;
             }
@@ -41,13 +42,16 @@ public class CuratorLock implements Lock {
 
     public CuratorLock(LockInfo zLockInfo) {
         path = zLockInfo.getPath();
+        //client操作需要先start
         client.start();
+        //zk锁
         processLock = new InterProcessMutex(client,path);
     }
 
     @Override
     public boolean lock() {
         try {
+            //acquire zk lock
             processLock.acquire();
         } catch (Exception e) {
             e.printStackTrace();
@@ -58,6 +62,7 @@ public class CuratorLock implements Lock {
     @Override
     public boolean lock(long timeout) {
         try {
+            //acquire zk lock with timeout
             processLock.acquire(timeout,TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             e.printStackTrace();
@@ -68,6 +73,7 @@ public class CuratorLock implements Lock {
     @Override
     public boolean unlock() {
         try {
+            //unlock zk lock
             processLock.release();
         }catch (Exception e){
             e.printStackTrace();
@@ -77,6 +83,7 @@ public class CuratorLock implements Lock {
 
     @Override
     public boolean isLock() {
+        //check zk lock is acquire
         return processLock.isAcquiredInThisProcess();
     }
 
