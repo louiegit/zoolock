@@ -2,24 +2,16 @@
 ## Quickstart 快速上手
 ### [Release Page zoolock-1.0.2.jar](https://github.com/louiegit/zoolock/releases)
 
-### CuratorLock Usage ( Distributed lock based on curator framework )
-```java
-        //创建锁节点信息
-        LockInfo info = new LockInfo("louie");
-        Lock cLock = new CuratorLock(info);
-        cLock.lock();
-        cLock.unlock();
-```
 ### ZooLock Usage ( Distributed lock based on zkClient )
 ```java
-        //创建锁节点信息
-        LockInfo lockInfo = new LockInfo("louie");
-        //获取lock对象
-        Lock zLock = new ZooLock(lockInfo);
-        //获取锁
-        zLock.lock();
-        //释放锁
-        zLock.unlock();
+ //创建锁节点信息
+ LockInfo lockInfo = new LockInfo("louie");
+ //获取lock对象
+ Lock zLock = new ZooLock(lockInfo);
+ //获取锁
+ zLock.lock();
+ //释放锁
+ zLock.unlock();
 ```
 
 ## ZooLock锁结构
