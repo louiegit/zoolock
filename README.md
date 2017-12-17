@@ -1,7 +1,6 @@
 
 ## Quickstart 快速上手
-### [Release Page zoolock-1.0.2.jar](https://github.com/louiegit/zoolock/releases)
-
+[![GitHub release](https://img.shields.io/badge/release-download-orange.svg)](https://github.com/louiegit/zoolock/releases)
 ### ZooLock Usage ( Distributed lock based on zkClient )
 ```java
  //创建锁节点信息
