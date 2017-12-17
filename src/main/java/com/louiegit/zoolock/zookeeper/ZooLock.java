@@ -34,7 +34,7 @@ public class ZooLock implements Lock {
 
     private void init(LockInfo lockInfo) {
         try {
-            //init zkClient
+            //初始化zkClient客户端
             zkClient = new ZooKeeper(LockInfo.DEFAULT_SOCKET, Integer.MAX_VALUE, new Watcher() {
                 @Override
                 public void process(WatchedEvent watchedEvent) {
@@ -45,12 +45,12 @@ public class ZooLock implements Lock {
             e.printStackTrace();
         }
         try {
-            //check root path is exists
+            //检查root路径是否存在
             Stat stat0 = zkClient.exists(LockInfo.ROOT, false);
             if (stat0 == null) {
                 zkClient.create(LockInfo.ROOT, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             }
-            //check lock path is exists
+            //检查锁的路径是否存在
             Stat stat = zkClient.exists(lockInfo.getPath(), false);
             if (stat == null) {
                 zkClient.create(lockInfo.getPath(), new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
@@ -70,33 +70,33 @@ public class ZooLock implements Lock {
     @Override
     public boolean lock(final long timeout) {
         try {
-            //create EPHEMERAL_SEQUENTIAL node
+            //新建一个临时序列化节点
             currentNode = zkClient.create(lockInfo.getPath() + DEFAULT_COMP_NODE, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
             String[] nodeStr = currentNode.split("/");
-            //acquire current thread node
+            //获取当前线程创造的临时节点
             String ownNode = nodeStr[nodeStr.length - 1];
             this.nodePath = ownNode;
-            //block thread to acquire lock
+            //循环争夺锁
             while (true) {
-                //acquire all subNodes from lock path
+                //将该锁路径下的所有节点获取出
                 List<String> allSubNode = zkClient.getChildren(lockInfo.getPath(), false);
                 Collections.sort(allSubNode);
                 String minNode = allSubNode.get(0);
-                //compare current node is minNode,if equals true,then return
+                //将当前线程创造节点与最小节点比较
                 if (minNode.equals(nodePath)) {
                     return true;
                 }
-                //if its not Minimum Node,block thread acquire lock
+                //如果不是最小节点,阻塞线程获取锁
                 final CountDownLatch countDownLatch = new CountDownLatch(1);
                 int ownIndex = allSubNode.indexOf(ownNode);
-                //set zk watcher on node which one is smaller node next to current node, if its delete,then countDown
+                //对比自己小的节点设置watcher,如果此节点被删除,countDown一次,继续循环判断
                 zkClient.exists(lockInfo.getPath() + "/" + allSubNode.get(ownIndex - 1), new Watcher() {
                     @Override
                     public void process(WatchedEvent watchedEvent) {
                         countDownLatch.countDown();
                     }
                 });
-                //block thread
+                //阻塞当前线程
                 if (timeout == 0){
                     countDownLatch.await();
                 }else {
@@ -113,7 +113,7 @@ public class ZooLock implements Lock {
     @Override
     public boolean unlock() {
         try {
-            //delete node
+            //删除该节点
             zkClient.delete(lockInfo.getPath() + "/" + nodePath, 0);
             return true;
         } catch (InterruptedException e) {
@@ -127,7 +127,7 @@ public class ZooLock implements Lock {
     @Override
     public boolean isLock() {
         try {
-            //check node is exists
+            //检查当前线程是否获取获取锁
             Stat stat = zkClient.exists(lockInfo.getPath() + "/" + nodePath, false);
             if (stat != null) {
                 return true;
