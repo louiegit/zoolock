@@ -1,7 +1,8 @@
-### Quickstart 快速上手
-#### [Release Page zoolock-1.0.2.jar](https://github.com/louiegit/zoolock/releases)
 
-#### CuratorLock Usage ( Distributed lock based on curator framework )
+## Quickstart 快速上手
+### [Release Page zoolock-1.0.2.jar](https://github.com/louiegit/zoolock/releases)
+
+### CuratorLock Usage ( Distributed lock based on curator framework )
 ```java
         //创建锁节点信息
         LockInfo info = new LockInfo("louie");
@@ -9,7 +10,7 @@
         cLock.lock();
         cLock.unlock();
 ```
-#### ZooLock Usage ( Distributed lock based on zkClient )
+### ZooLock Usage ( Distributed lock based on zkClient )
 ```java
         //创建锁节点信息
         LockInfo lockInfo = new LockInfo("louie");
@@ -20,9 +21,8 @@
         //释放锁
         zLock.unlock();
 ```
----
 
-### ZooLock锁结构
+## ZooLock锁结构
 *  /-------------- (ROOT)
 *  |----/locks
 *  |-------|
@@ -38,9 +38,8 @@
 *  |-------|---------|-------------|-----------------|---/locks/$lockType1/$key/$subkey/_00000004
 *  |-------|---------|-------------|-----------------|---/locks/$lockType1/$key/$subkey/_000000..
  
----
 
-### lock流程
+## lock流程
 a、在获取分布式锁的时候在locker节点下创建临时顺序节点，释放锁的时候删除该临时节点。
 
 b、客户端调用createNode方法在locker下创建临时顺序节点，然后调用getChildren(“locker”)来获取locker下面的所有子节点，注意此时不用设置任何Watcher。
@@ -51,3 +50,7 @@ d、如果发现自己创建的节点并非locker所有子节点中最小的，�
 
 e、之后，让这个被关注的节点删除，则客户端的Watcher会收到相应通知，此时再次判断自己创建的节点是否是locker子节点中序号最小的，如果是则获取到了锁，如果不是则重复以上步骤继续获取到比自己小的一个节点并注册监听。
 
+## Issues 问题
+Welcome to ask questions and doubts in the [Issues](https://github.com/louiegit/zoolock/issues) page!
+
+欢迎在 [Issues](https://github.com/louiegit/zoolock/issues) 页面中提出遇到的问题和疑惑！
