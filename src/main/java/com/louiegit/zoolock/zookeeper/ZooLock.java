@@ -93,7 +93,9 @@ public class ZooLock implements Lock {
                 zkClient.exists(lockInfo.getPath() + "/" + allSubNode.get(ownIndex - 1), new Watcher() {
                     @Override
                     public void process(WatchedEvent watchedEvent) {
-                        countDownLatch.countDown();
+                        if (watchedEvent.getType() == Event.EventType.NodeDeleted){
+                            countDownLatch.countDown();
+                        }
                     }
                 });
                 //阻塞当前线程

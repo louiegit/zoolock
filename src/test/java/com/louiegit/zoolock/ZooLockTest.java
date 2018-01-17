@@ -18,8 +18,8 @@ public class ZooLockTest {
         LockInfo lockInfo = new LockInfo("louie");
         Lock zLock = new ZooLock(lockInfo);
         zLock.lock();
-        zLock.lock();
         Assert.assertTrue(zLock.isLock());
+        zLock.lock();
         zLock.unlock();
         Assert.assertFalse(zLock.isLock());
     }
