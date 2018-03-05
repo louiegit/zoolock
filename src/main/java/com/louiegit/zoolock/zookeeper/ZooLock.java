@@ -4,11 +4,14 @@ import com.louiegit.zoolock.lock.Lock;
 import com.louiegit.zoolock.lock.LockInfo;
 import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.Stat;
+import org.apache.zookeeper.proto.WatcherEvent;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -87,24 +90,18 @@ public class ZooLock implements Lock {
                     return true;
                 }
                 //如果不是最小节点,阻塞线程获取锁
-                final CountDownLatch countDownLatch = new CountDownLatch(1);
+                final CyclicBarrier cyclicBarrier = new CyclicBarrier(1);
                 int ownIndex = allSubNode.indexOf(ownNode);
                 //对比自己小的节点设置watcher,如果此节点被删除,countDown一次,继续循环判断
-                zkClient.exists(lockInfo.getPath() + "/" + allSubNode.get(ownIndex - 1), new Watcher() {
-                    @Override
-                    public void process(WatchedEvent watchedEvent) {
-                        if (watchedEvent.getType() == Event.EventType.NodeDeleted){
-                            countDownLatch.countDown();
-                        }
+                while (true){
+                    setWatcher(allSubNode,ownIndex,cyclicBarrier);
+                    //阻塞当前线程
+                    if (timeout == 0){
+                        cyclicBarrier.await();
+                    }else {
+                        cyclicBarrier.await(timeout,TimeUnit.MILLISECONDS);
                     }
-                });
-                //阻塞当前线程
-                if (timeout == 0){
-                    countDownLatch.await();
-                }else {
-                    countDownLatch.await(timeout,TimeUnit.MILLISECONDS);
                 }
-
             }
         } catch (Exception e) {
 
@@ -140,6 +137,37 @@ public class ZooLock implements Lock {
             e.printStackTrace();
         }
         return false;
+    }
+
+    /**
+     * 设置watcher
+     * @param allSubNode
+     * @param ownIndex
+     * @param cyclicBarrier
+     */
+    private void setWatcher(List<String> allSubNode,int ownIndex,final CyclicBarrier cyclicBarrier){
+        try {
+            zkClient.exists(lockInfo.getPath() + "/" + allSubNode.get(ownIndex - 1), new Watcher() {
+                @Override
+                public void process(WatchedEvent watchedEvent) {
+                    if (watchedEvent.getType() == Event.EventType.NodeDeleted){
+                        try {
+                            cyclicBarrier.await();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        } catch (BrokenBarrierException e) {
+                            e.printStackTrace();
+                        }
+                    }else{
+                        cyclicBarrier.reset();
+                    }
+                }
+            });
+        } catch (KeeperException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 }
