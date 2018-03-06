@@ -90,17 +90,10 @@ public class ZooLock implements Lock {
                     return true;
                 }
                 //如果不是最小节点,阻塞线程获取锁
-                final CyclicBarrier cyclicBarrier = new CyclicBarrier(1);
                 int ownIndex = allSubNode.indexOf(ownNode);
                 //对比自己小的节点设置watcher,如果此节点被删除,countDown一次,继续循环判断
-                while (true){
-                    setWatcher(allSubNode,ownIndex,cyclicBarrier);
-                    //阻塞当前线程
-                    if (timeout == 0){
-                        cyclicBarrier.await();
-                    }else {
-                        cyclicBarrier.await(timeout,TimeUnit.MILLISECONDS);
-                    }
+                while (true) {
+                    setWatcher(allSubNode, ownIndex, timeout);
                 }
             }
         } catch (Exception e) {
@@ -141,26 +134,30 @@ public class ZooLock implements Lock {
 
     /**
      * 设置watcher
+     *
      * @param allSubNode
      * @param ownIndex
-     * @param cyclicBarrier
      */
-    private void setWatcher(List<String> allSubNode,int ownIndex,final CyclicBarrier cyclicBarrier){
+    private void setWatcher(List<String> allSubNode, int ownIndex, final long timeout) {
         try {
             zkClient.exists(lockInfo.getPath() + "/" + allSubNode.get(ownIndex - 1), new Watcher() {
                 @Override
                 public void process(WatchedEvent watchedEvent) {
-                    if (watchedEvent.getType() == Event.EventType.NodeDeleted){
-                        try {
-                            cyclicBarrier.await();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        } catch (BrokenBarrierException e) {
-                            e.printStackTrace();
-                        }
-                    }else{
-                        cyclicBarrier.reset();
+                    final CountDownLatch countDownLatch = new CountDownLatch(1);
+                    if (watchedEvent.getType() == Event.EventType.NodeDeleted) {
+                        countDownLatch.countDown();
                     }
+                    try {
+                        //阻塞当前线程
+                        if (timeout == 0) {
+                            countDownLatch.await();
+                        } else {
+                            countDownLatch.await(timeout, TimeUnit.MILLISECONDS);
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
                 }
             });
         } catch (KeeperException e) {
@@ -168,6 +165,12 @@ public class ZooLock implements Lock {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+
+    public static void main(String[] args) {
+
+
     }
 
 }
